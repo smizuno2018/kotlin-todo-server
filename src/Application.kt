@@ -1,18 +1,23 @@
 package com.todo
 
+import com.todo.service.DatabaseFactory
+import com.todo.service.TodoService
+import com.todo.web.todo
 import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun Application.module() {
+    DatabaseFactory.init()
 
-@Suppress("unused") // Referenced in application.conf
-@kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
-    val client = HttpClient(Apache) {
+    val todoService = TodoService()
+
+    install(Routing) {
+        todo(todoService)
     }
-
 }
 
+fun main(args: Array<String>) {
+    embeddedServer(Netty, commandLineEnvironment(args)).start(wait = true)
+}

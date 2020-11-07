@@ -2,7 +2,7 @@ buildscript {
     repositories {
         jcenter()
     }
-    
+
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -35,5 +35,19 @@ dependencies {
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-core-jvm:$ktor_version"
     implementation "io.ktor:ktor-client-apache:$ktor_version"
+    compile "org.jetbrains.exposed:exposed-core:$exposed_version"
+    compile "org.jetbrains.exposed:exposed-dao:$exposed_version"
+    compile "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
+    compile "org.postgresql:postgresql:$postgresql_version"
+    compile "org.jetbrains.exposed:exposed-jodatime:$exposed_version"
+
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+    testCompile group: "org.assertj", name: "assertj-core", version: "$assertj_core_version"
+    testCompile group: "io.rest-assured", name: "rest-assured", version: "$rest_assured_version"
+    testCompile group: "org.junit.jupiter", name: "junit-jupiter-api", version: "$junit_jupiter_api_version"
+    testCompile group: "org.junit.jupiter", name: "junit-jupiter-engine", version: "$junit_jupiter_engine_version"
+}
+
+test {
+    useJUnitPlatform()
 }
