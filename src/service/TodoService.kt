@@ -3,9 +3,7 @@ package com.todo.service
 import com.todo.model.NewTodo
 import com.todo.model.Todo
 import com.todo.model.Todos
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -20,17 +18,30 @@ class TodoService {
             }.singleOrNull()
         }
 
-    fun addTodo(todo: NewTodo): Todo {
+    fun countTodo() = transaction {
+        Todos.selectAll().count()
+    }
+
+    fun addTodo(todo: NewTodo) {
         val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
-        var key: Long = 0
         transaction {
-            key = ((Todos.insert {
+            Todos.insert {
                 it[title] = todo.title
                 it[detail] = todo.detail
                 it[date] = DateTime.parse(todo.date, formatter)
-            } get Todos.id))
+            }
         }
-        return getTodo(key)!!
+    }
+
+    fun updateTodo(id: Long, todo: NewTodo) {
+        val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
+        transaction {
+            Todos.update({ Todos.id eq id }) {
+                it[title] = todo.title
+                it[detail] = todo.detail
+                it[date] = DateTime.parse(todo.date, formatter)
+            }
+        }
     }
 
     private fun toTodo(row: ResultRow) =
@@ -41,3 +52,4 @@ class TodoService {
             date = row[Todos.date].toString()
         )
 }
+

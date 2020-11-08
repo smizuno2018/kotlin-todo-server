@@ -11,4 +11,9 @@ fun Route.todo(todoService: TodoService) {
             todoService.addTodo(call.receive())
         }
     }
+
+    put("/{id}") {
+        val id = call.parameters["id"]!!.toLong()
+        todoService.updateTodo(id, call.receive())
+    }
 }

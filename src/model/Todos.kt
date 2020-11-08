@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.jodatime.CurrentDateTime
 import org.jetbrains.exposed.sql.jodatime.date
 import org.jetbrains.exposed.sql.jodatime.datetime
 
-
 object Todos : Table() {
     val id = long("id").autoIncrement().check { it greaterEq TodosConstant.ID_START }
     val title = varchar("title", TodosConstant.TITLE_MAX_LENGTH)
