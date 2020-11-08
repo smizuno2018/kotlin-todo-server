@@ -18,8 +18,12 @@ class TodoService {
             }.singleOrNull()
         }
 
-    fun countTodo() = transaction {
-        Todos.selectAll().count()
+    fun getAllTodo(): MutableList<Todo> {
+        val todos: MutableList<Todo> = mutableListOf()
+        transaction {
+            Todos.selectAll().forEach { todos.add(toTodo(it)) }
+        }
+        return todos
     }
 
     fun addTodo(todo: NewTodo) {
@@ -48,6 +52,10 @@ class TodoService {
         return transaction {
             Todos.deleteWhere { Todos.id eq id } > 0
         }
+    }
+
+    fun countTodo() = transaction {
+        Todos.selectAll().count()
     }
 
     private fun toTodo(row: ResultRow) =

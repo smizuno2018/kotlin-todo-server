@@ -13,6 +13,26 @@ class TodoServiceTest : ServerTest() {
     private val todoService = TodoService()
 
     @Test
+    fun getAllTodo() = runBlocking {
+        assertThat(todoService.countTodo()).isEqualTo(0)
+
+        // given
+        val todo1 = NewTodo("title", "detail", "2020-01-01")
+        val todo2 = NewTodo("title", "detail", "2020-01-02")
+        val todo3 = NewTodo("title", "detail", "2020-01-03")
+
+        // when
+        todoService.addTodo(todo1)
+        todoService.addTodo(todo2)
+        todoService.addTodo(todo3)
+
+        // then
+        assertThat(todoService.countTodo()).isEqualTo(3)
+
+        Unit
+    }
+
+    @Test
     fun addTodo() = runBlocking {
         assertThat(todoService.countTodo()).isEqualTo(0)
 
