@@ -44,6 +44,12 @@ class TodoService {
         }
     }
 
+    fun deleteTodo(id: Long): Boolean {
+        return transaction {
+            Todos.deleteWhere { Todos.id eq id } > 0
+        }
+    }
+
     private fun toTodo(row: ResultRow) =
         Todo(
             id = row[Todos.id],

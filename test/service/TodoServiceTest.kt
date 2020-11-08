@@ -55,4 +55,21 @@ class TodoServiceTest : ServerTest() {
 
         Unit
     }
+
+    @Test
+    fun deleteTodo() = runBlocking {
+        assertThat(todoService.countTodo()).isEqualTo(0)
+
+        // given
+        val todo1 = NewTodo("title", "detail", "2020-01-01")
+        todoService.addTodo(todo1)
+
+        // when
+        todoService.deleteTodo(ID_START)
+
+        // then
+        assertThat(todoService.countTodo()).isEqualTo(0)
+
+        Unit
+    }
 }
