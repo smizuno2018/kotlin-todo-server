@@ -34,30 +34,49 @@ class TodoService {
                     it[date] = DateTime.parse(todo.date, formatter)
                 }
             }
-        } catch (e: ExposedSQLException) {
-            throw RecordInvalidException()
+        } catch (e: Throwable) {
+            when (e) {
+                is IllegalArgumentException -> throw RecordInvalidException()
+                else -> throw e
+            }
         }
     }
 
     fun updateTodo(id: Long, todo: NewTodo) {
         val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
-        var isFailed = false
-        transaction {
-            isFailed = Todos.update({ Todos.id eq id }) {
-                it[title] = todo.title
-                it[detail] = todo.detail
-                it[date] = DateTime.parse(todo.date, formatter)
-            } == 0
+        try {
+            transaction {
+                val isFailed = Todos.update({ Todos.id eq id }) {
+                    it[title] = todo.title
+                    it[detail] = todo.detail
+                    it[date] = DateTime.parse(todo.date, formatter)
+                } == 0
+                if (isFailed) throw RecordInvalidException()
+            }
+        } catch (e: Throwable) {
+            when (e) {
+                is IllegalArgumentException, is RecordInvalidException -> {
+                    throw RecordInvalidException()
+                }
+                else -> throw e
+            }
         }
-        if (isFailed) throw RecordInvalidException()
     }
 
     fun deleteTodo(id: Long) {
-        var isFailed = false
-        transaction {
-            isFailed = Todos.deleteWhere { Todos.id eq id } == 0
+        try {
+            transaction {
+                val isFailed = Todos.deleteWhere { Todos.id eq id } == 0
+                if (isFailed) throw RecordInvalidException()
+            }
+        } catch (e: Throwable) {
+            when (e) {
+                is IllegalArgumentException, is RecordInvalidException -> {
+                    throw RecordInvalidException()
+                }
+                else -> throw e
+            }
         }
-        if (isFailed) throw RecordInvalidException()
     }
 
     //region Only Test

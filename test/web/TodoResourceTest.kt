@@ -90,10 +90,8 @@ class TodoResourceTest : ServerTest() {
     @Nested
     inner class ErrorCases {
 
-        // TODO: Todo取得エラーを追加
-
         @Test
-        fun `Todo登録時、リクエストパラメータが不正`() {
+        fun `Todo登録時にリクエストパラメータが不正の場合、エラーレスポンスを返す`() {
             // when
             val retrieved = given()
                 .contentType(ContentType.JSON)
@@ -110,7 +108,7 @@ class TodoResourceTest : ServerTest() {
         }
 
         @Test
-        fun `Todo更新時、リクエストパラメータが不正`() {
+        fun `Todo更新時にリクエストパラメータが不正の場合、エラーレスポンスを返す`() {
             // when
             val retrieved = given()
                 .contentType(ContentType.JSON)
@@ -127,7 +125,7 @@ class TodoResourceTest : ServerTest() {
         }
 
         @Test
-        fun `Todo更新時、レコードが不在`() {
+        fun `Todo更新時に対象のTodoが不在の場合、エラーレスポンスを返す`() {
             // when
             val todo1 = NewTodo("title", "detail", "2020-01-01")
             val retrieved = given()
@@ -145,7 +143,7 @@ class TodoResourceTest : ServerTest() {
         }
 
         @Test
-        fun `Todo削除時、レコードが不在`() {
+        fun `Todo削除時に対象のTodoが不在の場合、エラーレスポンスを返す`() {
             // when
             val retrieved = delete("/todos/{id}", ID_START)
                 .then()
