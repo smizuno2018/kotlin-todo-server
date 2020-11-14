@@ -1,64 +1,80 @@
 package com.todo.service
 
 import com.todo.model.NewTodo
+import com.todo.model.RecordInvalidException
 import com.todo.model.Todo
 import com.todo.model.Todos
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
 class TodoService {
-    fun getTodo(id: Long) =
-        transaction {
-            Todos.select {
-                (Todos.id eq id)
-            }.mapNotNull {
-                toTodo(it)
-            }.singleOrNull()
-        }
 
     fun getAllTodo(): MutableList<Todo> {
         val todos: MutableList<Todo> = mutableListOf()
-        transaction {
-            Todos.selectAll().forEach { todos.add(toTodo(it)) }
+        try {
+            transaction {
+                Todos.selectAll().forEach { todos.add(makeTodo(it)) }
+            }
+        } catch (e: ExposedSQLException) {
+            throw RecordInvalidException()
         }
         return todos
     }
 
     fun addTodo(todo: NewTodo) {
         val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
-        transaction {
-            Todos.insert {
-                it[title] = todo.title
-                it[detail] = todo.detail
-                it[date] = DateTime.parse(todo.date, formatter)
+        try {
+            transaction {
+                Todos.insert {
+                    it[title] = todo.title
+                    it[detail] = todo.detail
+                    it[date] = DateTime.parse(todo.date, formatter)
+                }
             }
+        } catch (e: ExposedSQLException) {
+            throw RecordInvalidException()
         }
     }
 
     fun updateTodo(id: Long, todo: NewTodo) {
         val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
+        var isFailed = false
         transaction {
-            Todos.update({ Todos.id eq id }) {
+            isFailed = Todos.update({ Todos.id eq id }) {
                 it[title] = todo.title
                 it[detail] = todo.detail
                 it[date] = DateTime.parse(todo.date, formatter)
-            }
+            } == 0
         }
+        if (isFailed) throw RecordInvalidException()
     }
 
-    fun deleteTodo(id: Long): Boolean {
-        return transaction {
-            Todos.deleteWhere { Todos.id eq id } > 0
+    fun deleteTodo(id: Long) {
+        var isFailed = false
+        transaction {
+            isFailed = Todos.deleteWhere { Todos.id eq id } == 0
         }
+        if (isFailed) throw RecordInvalidException()
+    }
+
+    //region Only Test
+    fun getTodo(id: Long) = transaction {
+        Todos.select {
+            (Todos.id eq id)
+        }.mapNotNull {
+            makeTodo(it)
+        }.singleOrNull()
     }
 
     fun countTodo() = transaction {
         Todos.selectAll().count()
     }
+    //endregion
 
-    private fun toTodo(row: ResultRow) =
+    private fun makeTodo(row: ResultRow) =
         Todo(
             id = row[Todos.id],
             title = row[Todos.title],
