@@ -18,8 +18,11 @@ class TodoService {
             transaction {
                 Todos.selectAll().forEach { todos.add(makeTodo(it)) }
             }
-        } catch (e: ExposedSQLException) {
-            throw RecordInvalidException()
+        } catch (e: Throwable) {
+            when (e) {
+                is ExposedSQLException -> throw RecordInvalidException()
+                else -> throw e
+            }
         }
         return todos
     }
@@ -36,7 +39,7 @@ class TodoService {
             }
         } catch (e: Throwable) {
             when (e) {
-                is IllegalArgumentException -> throw RecordInvalidException()
+                is IllegalArgumentException, is ExposedSQLException -> throw RecordInvalidException()
                 else -> throw e
             }
         }
@@ -55,7 +58,7 @@ class TodoService {
             }
         } catch (e: Throwable) {
             when (e) {
-                is IllegalArgumentException, is RecordInvalidException -> {
+                is IllegalArgumentException, is RecordInvalidException, is ExposedSQLException -> {
                     throw RecordInvalidException()
                 }
                 else -> throw e
@@ -71,9 +74,7 @@ class TodoService {
             }
         } catch (e: Throwable) {
             when (e) {
-                is IllegalArgumentException, is RecordInvalidException -> {
-                    throw RecordInvalidException()
-                }
+                is RecordInvalidException, is ExposedSQLException -> throw RecordInvalidException()
                 else -> throw e
             }
         }

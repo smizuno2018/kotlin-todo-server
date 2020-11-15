@@ -23,8 +23,13 @@ fun Route.todo(todoService: TodoService) {
             try {
                 val todos = todoService.getAllTodo()
                 call.respond(OK, TodosResponse(todos))
-            } catch (e: RecordInvalidException) {
-                throw  InternalServerErrorException(GET_ERROR_MESSAGE, GET_ERROR_CODE)
+            } catch (e: Exception) {
+                when (e) {
+                    is RecordInvalidException -> {
+                        throw InternalServerErrorException(GET_ERROR_MESSAGE, GET_ERROR_CODE)
+                    }
+                    else -> throw UnknownException()
+                }
             }
         }
 
@@ -39,9 +44,9 @@ fun Route.todo(todoService: TodoService) {
                         throw BadRequestException()
                     }
                     is RecordInvalidException -> {
-                        throw  InternalServerErrorException(POST_ERROR_MESSAGE, POST_ERROR_CODE)
+                        throw InternalServerErrorException(POST_ERROR_MESSAGE, POST_ERROR_CODE)
                     }
-                    else -> throw e
+                    else -> throw UnknownException()
                 }
             }
         }
@@ -58,9 +63,9 @@ fun Route.todo(todoService: TodoService) {
                         throw BadRequestException()
                     }
                     is RecordInvalidException -> {
-                        throw  InternalServerErrorException(PUT_ERROR_MESSAGE, PUT_ERROR_CODE)
+                        throw InternalServerErrorException(PUT_ERROR_MESSAGE, PUT_ERROR_CODE)
                     }
-                    else -> throw e
+                    else -> throw UnknownException()
                 }
             }
         }
@@ -76,9 +81,9 @@ fun Route.todo(todoService: TodoService) {
                         throw BadRequestException()
                     }
                     is RecordInvalidException -> {
-                        throw  InternalServerErrorException(DELETE_ERROR_MESSAGE, DELETE_ERROR_CODE)
+                        throw InternalServerErrorException(DELETE_ERROR_MESSAGE, DELETE_ERROR_CODE)
                     }
-                    else -> throw e
+                    else -> throw UnknownException()
                 }
             }
         }

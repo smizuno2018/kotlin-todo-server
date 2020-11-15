@@ -38,7 +38,7 @@ class TodoServiceTest : ServerTest() {
         assertThat(todoService.countTodo()).isEqualTo(3)
         assertThat(retrieved).extracting("title").containsExactlyInAnyOrder(todo1.title, todo2.title, todo3.title)
         assertThat(retrieved).extracting("detail").containsExactlyInAnyOrder(todo1.detail, todo2.detail, todo3.detail)
-        // assertThat(todos).extracting("date").containsExactlyInAnyOrder(todo1.date, todo2.date, todo3.date)
+        // assertThat(retrieved).extracting("date").containsExactlyInAnyOrder(todo1.date, todo2.date, todo3.date)
 
         Unit
     }
@@ -46,17 +46,17 @@ class TodoServiceTest : ServerTest() {
     @Test
     fun addTodo() = runBlocking {
         // given
-        val todo1 = NewTodo("title", "detail", "2020-01-01")
+        val newTodo = NewTodo("title", "detail", "2020-01-01")
 
         // when
-        todoService.addTodo(todo1)
+        todoService.addTodo(newTodo)
 
         // then
         val retrieved = todoService.getTodo(ID_START)
         assertThat(todoService.countTodo()).isEqualTo(1)
         assertThat(retrieved?.id).isEqualTo(ID_START)
-        assertThat(retrieved?.title).isEqualTo(todo1.title)
-        assertThat(retrieved?.detail).isEqualTo(todo1.detail)
+        assertThat(retrieved?.title).isEqualTo(newTodo.title)
+        assertThat(retrieved?.detail).isEqualTo(newTodo.detail)
         // assertThat(retrieved?.date).isEqualTo(todo1.date)
 
         Unit
@@ -65,19 +65,19 @@ class TodoServiceTest : ServerTest() {
     @Test
     fun updateTodo() = runBlocking {
         // given
-        val todo1 = NewTodo("title", "detail", "2020-01-01")
-        todoService.addTodo(todo1)
+        val oldTodo = NewTodo("title", "detail", "2020-01-01")
+        todoService.addTodo(oldTodo)
 
         // when
-        val todo2 = NewTodo("updatedTitle", "updatedDetail", "2020-02-02")
-        todoService.updateTodo(ID_START, todo2)
+        val newTodo = NewTodo("updatedTitle", "updatedDetail", "2020-02-02")
+        todoService.updateTodo(ID_START, newTodo)
 
         // then
         val retrieved = todoService.getTodo(ID_START)
         assertThat(todoService.countTodo()).isEqualTo(1)
         assertThat(retrieved?.id).isEqualTo(ID_START)
-        assertThat(retrieved?.title).isEqualTo(todo2.title)
-        assertThat(retrieved?.detail).isEqualTo(todo2.detail)
+        assertThat(retrieved?.title).isEqualTo(newTodo.title)
+        assertThat(retrieved?.detail).isEqualTo(newTodo.detail)
         // assertThat(retrieved?.date).isEqualTo(todo2.date)
 
         Unit
@@ -86,8 +86,8 @@ class TodoServiceTest : ServerTest() {
     @Test
     fun deleteTodo() = runBlocking {
         // given
-        val todo1 = NewTodo("title", "detail", "2020-01-01")
-        todoService.addTodo(todo1)
+        val newTodo = NewTodo("title", "detail", "2020-01-01")
+        todoService.addTodo(newTodo)
 
         // when
         todoService.deleteTodo(ID_START)
@@ -104,15 +104,14 @@ class TodoServiceTest : ServerTest() {
         @Test
         fun `Todo登録時のTitleが100文字以上の場合、例外が発生する`() = runBlocking {
             // given
-            val todo1 = NewTodo(
-                "titleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-                "detail",
-                "2020-01-01"
-            )
+            val invalidTitle =
+                "titleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+            assertThat(invalidTitle.length).isEqualTo(101)
+            val newTodo = NewTodo(invalidTitle, "detail", "2020-01-01")
 
             // when
             val thrown: Throwable = catchThrowable {
-                todoService.addTodo(todo1)
+                todoService.addTodo(newTodo)
             }
 
             // then
@@ -125,15 +124,14 @@ class TodoServiceTest : ServerTest() {
         @Test
         fun `Todo登録時のDetailが1000文字以上の場合、例外が発生する`() = runBlocking {
             // given
-            val todo1 = NewTodo(
-                "detaillllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll",
-                "detail",
-                "2020-01-01"
-            )
+            val invalidDetail =
+                "detaillllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll"
+            assertThat(invalidDetail.length).isEqualTo(1001)
+            val newTodo = NewTodo("title", invalidDetail, "2020-01-01")
 
             // when
             val thrown: Throwable = catchThrowable {
-                todoService.addTodo(todo1)
+                todoService.addTodo(newTodo)
             }
 
             // then
@@ -146,9 +144,9 @@ class TodoServiceTest : ServerTest() {
         @Test
         fun `Todo更新時に対象のTodoが存在しない場合、例外が発生する`() = runBlocking {
             // when
-            val todo2 = NewTodo("updatedTitle", "updatedDetail", "2020-02-02")
+            val newTodo = NewTodo("updatedTitle", "updatedDetail", "2020-02-02")
             val thrown: Throwable = catchThrowable {
-                todoService.updateTodo(ID_START, todo2)
+                todoService.updateTodo(ID_START, newTodo)
             }
 
             // then

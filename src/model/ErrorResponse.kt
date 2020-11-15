@@ -22,6 +22,7 @@ class ErrorCode {
 
 class ErrorMessage {
     companion object {
+        const val UNKNOWN_ERROR_MESSAGE = "サーバー内で不明なエラーが発生しました"
         const val BAD_REQUEST_ERROR_MESSAGE = "リクエストの形式が不正です"
         const val GET_ERROR_MESSAGE = "一覧の取得に失敗しました"
         const val POST_ERROR_MESSAGE = "登録に失敗しました"

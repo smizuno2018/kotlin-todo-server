@@ -16,12 +16,12 @@ class TodoResourceTest : ServerTest() {
     @Test
     fun testPostTodo() {
         // when
-        val todo1 = NewTodo("title", "detail", "2020-01-01")
-        val retrieved = post(todo1)
+        val newTodo = NewTodo("title", "detail", "2020-01-01")
+        val response = post(newTodo)
 
         // then
-        assertThat(retrieved.errorCode).isEqualTo(0)
-        assertThat(retrieved.errorMessage).isEqualTo("")
+        assertThat(response.errorCode).isEqualTo(0)
+        assertThat(response.errorMessage).isEqualTo("")
     }
 
     @Test
@@ -33,32 +33,32 @@ class TodoResourceTest : ServerTest() {
         post(todo2)
 
         // when
-        val retrieved = get("/todos")
+        val response = get("/todos")
             .then()
             .statusCode(200)
             .extract().to<TodosResponse>()
 
         // then
-        assertThat(retrieved.todos).hasSize(2)
-        assertThat(retrieved.todos).extracting("title").containsExactlyInAnyOrder(todo1.title, todo2.title)
-        assertThat(retrieved.todos).extracting("detail").containsExactlyInAnyOrder(todo1.detail, todo2.detail)
-        // assertThat(retrieved.todos).extracting("date").containsExactlyInAnyOrder(todo1.date, todo2.date)
+        assertThat(response.todos).hasSize(2)
+        assertThat(response.todos).extracting("title").containsExactlyInAnyOrder(todo1.title, todo2.title)
+        assertThat(response.todos).extracting("detail").containsExactlyInAnyOrder(todo1.detail, todo2.detail)
+        // assertThat(response.todos).extracting("date").containsExactlyInAnyOrder(todo1.date, todo2.date)
 
-        assertThat(retrieved.errorCode).isEqualTo(0)
-        assertThat(retrieved.errorMessage).isEqualTo("")
+        assertThat(response.errorCode).isEqualTo(0)
+        assertThat(response.errorMessage).isEqualTo("")
     }
 
     @Test
     fun testPutTodo() {
         // given
-        val todo1 = NewTodo("title", "detail", "2020-01-01")
-        post(todo1)
+        val oldTodo = NewTodo("title", "detail", "2020-01-01")
+        post(oldTodo)
 
         // when
-        val update = NewTodo("title2", "detail2", "2020-02-02")
-        val updated = given()
+        val newTodo = NewTodo("title2", "detail2", "2020-02-02")
+        val response = given()
             .contentType(ContentType.JSON)
-            .body(update)
+            .body(newTodo)
             .When()
             .put("/todos/{id}", ID_START)
             .then()
@@ -66,25 +66,25 @@ class TodoResourceTest : ServerTest() {
             .extract().to<TodoResponse>()
 
         // then
-        assertThat(updated.errorCode).isEqualTo(0)
-        assertThat(updated.errorMessage).isEqualTo("")
+        assertThat(response.errorCode).isEqualTo(0)
+        assertThat(response.errorMessage).isEqualTo("")
     }
 
     @Test
     fun testDeleteTodo() {
         // given
-        val todo1 = NewTodo("title", "detail", "2020-01-01")
-        post(todo1)
+        val newTodo = NewTodo("title", "detail", "2020-01-01")
+        post(newTodo)
 
         // when
-        val retrieved = delete("/todos/{id}", ID_START)
+        val response = delete("/todos/{id}", ID_START)
             .then()
             .statusCode(200)
             .extract().to<TodoResponse>()
 
         // then
-        assertThat(retrieved.errorCode).isEqualTo(0)
-        assertThat(retrieved.errorMessage).isEqualTo("")
+        assertThat(response.errorCode).isEqualTo(0)
+        assertThat(response.errorMessage).isEqualTo("")
     }
 
     @Nested
@@ -93,7 +93,7 @@ class TodoResourceTest : ServerTest() {
         @Test
         fun `Todo登録時にリクエストパラメータが不正の場合、エラーレスポンスを返す`() {
             // when
-            val retrieved = given()
+            val response = given()
                 .contentType(ContentType.JSON)
                 .body("Illegal parameter")
                 .When()
@@ -103,14 +103,14 @@ class TodoResourceTest : ServerTest() {
                 .extract().to<TodoResponse>()
 
             // then
-            assertThat(retrieved.errorCode).isEqualTo(2)
-            assertThat(retrieved.errorMessage).isEqualTo("リクエストの形式が不正です")
+            assertThat(response.errorCode).isEqualTo(2)
+            assertThat(response.errorMessage).isEqualTo("リクエストの形式が不正です")
         }
 
         @Test
         fun `Todo更新時にリクエストパラメータが不正の場合、エラーレスポンスを返す`() {
             // when
-            val retrieved = given()
+            val response = given()
                 .contentType(ContentType.JSON)
                 .body("Illegal parameter")
                 .When()
@@ -120,17 +120,17 @@ class TodoResourceTest : ServerTest() {
                 .extract().to<TodoResponse>()
 
             // then
-            assertThat(retrieved.errorCode).isEqualTo(2)
-            assertThat(retrieved.errorMessage).isEqualTo("リクエストの形式が不正です")
+            assertThat(response.errorCode).isEqualTo(2)
+            assertThat(response.errorMessage).isEqualTo("リクエストの形式が不正です")
         }
 
         @Test
         fun `Todo更新時に対象のTodoが不在の場合、エラーレスポンスを返す`() {
             // when
-            val todo1 = NewTodo("title", "detail", "2020-01-01")
-            val retrieved = given()
+            val newTodo = NewTodo("title", "detail", "2020-01-01")
+            val response = given()
                 .contentType(ContentType.JSON)
-                .body(todo1)
+                .body(newTodo)
                 .When()
                 .put("/todos/{id}", ID_START)
                 .then()
@@ -138,21 +138,21 @@ class TodoResourceTest : ServerTest() {
                 .extract().to<TodoResponse>()
 
             // then
-            assertThat(retrieved.errorCode).isEqualTo(5)
-            assertThat(retrieved.errorMessage).isEqualTo("更新に失敗しました")
+            assertThat(response.errorCode).isEqualTo(5)
+            assertThat(response.errorMessage).isEqualTo("更新に失敗しました")
         }
 
         @Test
         fun `Todo削除時に対象のTodoが不在の場合、エラーレスポンスを返す`() {
             // when
-            val retrieved = delete("/todos/{id}", ID_START)
+            val response = delete("/todos/{id}", ID_START)
                 .then()
                 .statusCode(500)
                 .extract().to<TodoResponse>()
 
             // then
-            assertThat(retrieved.errorCode).isEqualTo(6)
-            assertThat(retrieved.errorMessage).isEqualTo("削除に失敗しました")
+            assertThat(response.errorCode).isEqualTo(6)
+            assertThat(response.errorMessage).isEqualTo("削除に失敗しました")
         }
     }
 
