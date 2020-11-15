@@ -1,6 +1,6 @@
 # todo-server
 ## 環境構築
-### Docker のコンテナ(ローカルDB)を起動する
+### Dockerコンテナ(ローカルDB)を起動する
 1. docker for macをインストール。
 2. `docker-compose up -d` を実行。
 
