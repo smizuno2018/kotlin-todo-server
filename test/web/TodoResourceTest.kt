@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 class TodoResourceTest : ServerTest() {
 
     @Test
-    fun testCreateTodo() {
+    fun testPostTodo() {
         // when
         val todo1 = NewTodo("title", "detail", "2020-01-01")
         val retrieved = post(todo1)
@@ -49,7 +49,7 @@ class TodoResourceTest : ServerTest() {
     }
 
     @Test
-    fun testUpdateTodo() {
+    fun testPutTodo() {
         // given
         val todo1 = NewTodo("title", "detail", "2020-01-01")
         post(todo1)

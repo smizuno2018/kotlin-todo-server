@@ -8,6 +8,7 @@ import common.ServerTest
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -15,10 +16,13 @@ class TodoServiceTest : ServerTest() {
 
     private val todoService = TodoService()
 
+    @BeforeEach
+    fun `各テストはTodoレコード0件を前提に作成しているため、レコード数を確認する`() {
+        assertThat(todoService.countTodo()).isEqualTo(0)
+    }
+
     @Test
     fun getAllTodo() = runBlocking {
-        assertThat(todoService.countTodo()).isEqualTo(0)
-
         // given
         val todo1 = NewTodo("title", "detail", "2020-01-01")
         val todo2 = NewTodo("title", "detail", "2020-01-02")
@@ -41,8 +45,6 @@ class TodoServiceTest : ServerTest() {
 
     @Test
     fun addTodo() = runBlocking {
-        assertThat(todoService.countTodo()).isEqualTo(0)
-
         // given
         val todo1 = NewTodo("title", "detail", "2020-01-01")
 
@@ -62,8 +64,6 @@ class TodoServiceTest : ServerTest() {
 
     @Test
     fun updateTodo() = runBlocking {
-        assertThat(todoService.countTodo()).isEqualTo(0)
-
         // given
         val todo1 = NewTodo("title", "detail", "2020-01-01")
         todoService.addTodo(todo1)
@@ -85,8 +85,6 @@ class TodoServiceTest : ServerTest() {
 
     @Test
     fun deleteTodo() = runBlocking {
-        assertThat(todoService.countTodo()).isEqualTo(0)
-
         // given
         val todo1 = NewTodo("title", "detail", "2020-01-01")
         todoService.addTodo(todo1)

@@ -49,6 +49,7 @@ open class ServerTest {
     @BeforeEach
     fun before() = runBlocking {
         newSuspendedTransaction {
+            // FIXME: テスト毎にテーブルを作り直さず、テスト用のDBを用意する
             SchemaUtils.drop(Todos)
             SchemaUtils.create(Todos)
             Unit
